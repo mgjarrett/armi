@@ -27,6 +27,7 @@ from armi.reactor.converters import geometryConverters
 from armi.reactor.tests.test_reactors import loadTestReactor
 from armi.reactor.flags import Flags
 from armi.reactor import locations
+from armi.utils import directoryChangers
 
 
 THIS_DIR = os.path.dirname(__file__)
@@ -139,11 +140,11 @@ class TestBlockNumberModifier(unittest.TestCase):
         """
         converter = geometryConverters.BlockNumberModifier(self.cs)
         converter.refinement = 2
-        converter.convert(self.r)
-
         refAssem = self.r.core.refAssem
+        numFuel = len(refAssem.getBlocks(Flags.FUEL))
+        converter.convert(self.r)
         numBlocks = len(set(refAssem.getBlocks(Flags.FUEL)))
-        self.assertEqual(numBlocks, 3 * converter.refinement)
+        self.assertEqual(numFuel * converter.refinement, numBlocks)
 
 
 class TestHexToRZConverter(unittest.TestCase):
@@ -167,7 +168,7 @@ class TestHexToRZConverter(unittest.TestCase):
             "axialConversionType": "Axial Coordinates",
             "uniformThetaMesh": True,
             "thetaBins": 1,
-            "axialMesh": [50, 100, 150, 175],
+            "axialMesh": [25, 50, 75, 100, 150, 175],
             "thetaMesh": [2 * math.pi],
         }
 
@@ -181,6 +182,9 @@ class TestHexToRZConverter(unittest.TestCase):
         self._checkBlockComponents(newR)
         self._checkNuclidesMatch(expectedNuclideList, newR)
         self._checkNuclideMasses(expectedMassDict, newR)
+        figs = geomConv.plotConvertedReactor()
+        with directoryChangers.TemporaryDirectoryChanger():
+            geomConv.plotConvertedReactor("fname")
 
     def _getExpectedData(self):
         """Retrieve the mass of all nuclides in the reactor prior to converting."""
