@@ -158,7 +158,6 @@ def getMassInGrams(nucName, volume, numberDensity=None):
 
 def formatMaterialCard(
     densities,
-    matNum=0,
     minDens=1e-15,
     sigFigs=8,
     mcnp6Compatible=False,
@@ -191,7 +190,8 @@ def formatMaterialCard(
         for nuc in densities
     ):
         return []  # no valid nuclides to write
-    mCard = ["m{matNum}\n".format(matNum=matNum)]
+    #mCard = ["m{matNum}\n".format(matNum=matNum)]
+    mCard = ["m{}\n"]
     for nuc, dens in sorted(densities.items()):
         # skip LFPs and Dummies.
         if isinstance(nuc, (nuclideBases.LumpNuclideBase)):
