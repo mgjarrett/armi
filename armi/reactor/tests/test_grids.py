@@ -378,6 +378,10 @@ class TestHexGrid(unittest.TestCase):
         self.assertFalse(grid.isInFirstThird(grid[-1, -1, 0]))
         self.assertFalse(grid.isInFirstThird(grid[3, -2, 0]))
 
+    def test_Enumeration(self):
+        grid = grids.HexGrid.fromPitch(1.0, numRings=10)
+        self.assertTrue(grid.geomType == geometry.GeomType.HEX)
+
 
 class TestBoundsDefinedGrid(unittest.TestCase):
     def testPositions(self):
@@ -574,7 +578,7 @@ class TestCartesianGrid(unittest.TestCase):
         grid = grids.CartesianGrid.fromRectangle(
             1.0,
             1.0,
-            symmetry=geometry.FULL_CORE,
+            symmetry=geometry.DomainType.FULL_CORE,
         )
         self.assertEqual(grid.getSymmetricEquivalents((5, 6)), [])
 

@@ -1427,6 +1427,7 @@ class HexGrid(Grid):
             unitSteps=unitSteps,
             unitStepLimits=((-numRings, numRings), (-numRings, numRings), (0, 1)),
             armiObject=armiObject,
+            geomType=geometry.GeomType.HEX,
             symmetry=symmetry,
         )
 
