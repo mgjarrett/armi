@@ -38,6 +38,7 @@ class Zone:
             locations = []
         self.locList = locations
         self.hotZone = False
+        self.highBurnZone = False
         self.hostZone = name
 
     def __repr__(self):
@@ -426,6 +427,7 @@ def buildZones(core, cs):
         "\nLocations",
         "Symmetry\nFactor",
         "Hot\nZone",
+        "High Burn\nZone",
     ]
     zoneSummaryData = []
     for zi, zone in enumerate(zones, 1):
@@ -433,7 +435,15 @@ def buildZones(core, cs):
             zone, maxNumberOfValuesBeforeDelimiter=6
         )
         zoneSummaryData.append(
-            (zi, zone.name, len(zone), assemLocations, zone.symmetry, zone.hotZone)
+            (
+                zi,
+                zone.name,
+                len(zone),
+                assemLocations,
+                zone.symmetry,
+                zone.hotZone,
+                zone.highBurnZone,
+            )
         )
     runLog.info(
         "Assembly zone definitions:\n"
@@ -671,6 +681,7 @@ def splitZones(core, cs, zones):
         "\nLocations",
         "Symmetry\nFactor",
         "Hot\nZone",
+        "High Burn\nZone",
     ]
     zoneSummaryData = []
     for zi, zone in enumerate(zones, 1):
@@ -686,6 +697,7 @@ def splitZones(core, cs, zones):
                 assemLocations,
                 zone.symmetry,
                 zone.hotZone,
+                zone.highBurnZone,
             )
         )
     runLog.info(
@@ -749,6 +761,59 @@ def createHotZones(core, zones):
                 zones[hotZoneName].append(hotLocation)
                 zones[hotZoneName].hotZone = True
                 zones[hotZoneName].hostZone = name
+            # Now remove the original zone if its does not store any locations anymore.
+            if len(zones[name]) == 0:
+                zones.removeZone(name)
+    return zones
+
+
+def createHighBurnZones(core, zones):
+    """
+    Make new zones from assemblies with the max burnup in a zone.
+
+    From a fuel performance perspective, high burnup can be more limiting than high
+    power/flow ratio. This is an alternative option to define "high burnup channels"
+    instead of "hot channels".
+
+    Parameters
+    ----------
+    core : Core
+        The core object
+    zones: Zones
+        Zones
+
+    Returns
+    -------
+    zones: zones object
+
+    Notes
+    -----
+    This method determines which assembly has the highest burnup in each zone.
+    This method then removes that assembly from its original zone and places it in a new zone.
+    """
+    originalZoneNames = tuple([zone.name for zone in zones])
+    for name in originalZoneNames:
+        assems = core.getAssemblies(Flags.FUEL, zones=name)
+        # don't create hot zones from zones with only one assembly
+        if len(assems) > 1:
+            maxBU = 0.0
+            hotLocation = ""
+            for a in assems:
+                # Check to make sure power and TH calcs were performed for this zon
+                bu = a.calcAvgParam("percentBu", typeSpec=Flags.FUEL)
+                loc = a.getLocation()
+                if bu >= maxBU:
+                    maxBU = bu
+                    hotLocation = loc
+            # If we were able to identify the hot location, create a hot zone.
+            if hotLocation:
+                zones[name].locList.remove(hotLocation)
+                highBurnName = "highBurn_" + name
+                highBurn = Zone(highBurnName)
+                zones.add(highBurn)
+                zones[highBurnName].append(hotLocation)
+                zones[highBurnName].highBurn = True
+                zones[highBurnName].hostZone = name
             # Now remove the original zone if its does not store any locations anymore.
             if len(zones[name]) == 0:
                 zones.removeZone(name)
