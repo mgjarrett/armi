@@ -75,7 +75,7 @@ __all__ = [
 ]
 
 
-def loadOperator(pathToDb, loadCycle, loadNode):
+def loadOperator(pathToDb, loadCycle, loadNode, allowMissing=False):
     """
     Return an operator given the path to a database.
 
@@ -132,7 +132,7 @@ def loadOperator(pathToDb, loadCycle, loadNode):
         cs = db.loadCS()
         thisCase = cases.Case(cs)
 
-        r = db.load(loadCycle, loadNode)
+        r = db.load(loadCycle, loadNode, allowMissing=allowMissing)
     settings.setMasterCs(cs)
 
     # Update the global assembly number because, if the user is loading a reactor from
