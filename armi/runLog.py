@@ -471,7 +471,7 @@ class RunLogger(logging.Logger):
         # optionally, the user can pass in the MPI_RANK by putting it in the logger name after a separator string
         if SEP in args[0]:
             mpiRank = int(args[0].split(SEP)[-1].strip())
-            args = (args[0].split(SEP)[0],)
+            args = (".".join(args[0].split(SEP)[0:2]),)
         else:
             mpiRank = context.MPI_RANK
 
