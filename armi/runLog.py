@@ -248,7 +248,9 @@ class _RunLog:
     def startLog(self, name):
         """Initialize the streams when parallel processing"""
         # open the main logger
-        self.logger = logging.getLogger(STDOUT_LOGGER_NAME + SEP + str(self._mpiRank))
+        self.logger = logging.getLogger(
+            STDOUT_LOGGER_NAME + SEP + name + SEP + str(self._mpiRank)
+        )
 
         # if there was a pre-existing _verbosity, use it now
         if self._verbosity != logging.INFO:
@@ -310,41 +312,58 @@ def concatenateLogs(logDir=None):
 
     info("Concatenating {0} log files".format(len(stdoutFiles)))
 
-    for stdoutName in stdoutFiles:
-        # NOTE: If the log file name format changes, this will need to change.
-        rank = int(stdoutName.split(".")[-2])
+    # default worker log name if none is found
+    caseTitle = "armi-workers"
+    for stdoutPath in stdoutFiles:
+        stdoutFile = os.path.normpath(stdoutPath).split(os.sep)[-1]
+        prefix = STDOUT_LOGGER_NAME + "."
+        if stdoutFile[0 : len(prefix)] == prefix:
+            caseTitle = stdoutFile.split(".")[-3]
+            break
 
-        # first, print the log messages for a child process
-        with open(stdoutName, "r") as logFile:
-            data = logFile.read()
-            if data:
-                # only write if there's something to write
-                rankId = "\n{0} RANK {1:03d} STDOUT {2}\n".format(
-                    "-" * 10, rank, "-" * 60
-                )
-                print(rankId, file=sys.stdout)
-                print(data, file=sys.stdout)
-        try:
-            os.remove(stdoutName)
-        except OSError:
-            warning("Could not delete {0}".format(stdoutName))
+    combinedLogName = os.path.join(logDir, "{}-mpi.log".format(caseTitle))
+    with open(combinedLogName, "w") as workerLog:
+        workerLog.write(
+            "\n{0} CONCATENATED WORKER LOG FILES {1}\n".format("-" * 10, "-" * 10)
+        )
 
-        # then print the stderr messages for that child process
-        stderrName = stdoutName[:-3] + "err"
-        if os.path.exists(stderrName):
-            with open(stderrName) as logFile:
+        for stdoutName in stdoutFiles:
+            # NOTE: If the log file name format changes, this will need to change.
+            rank = int(stdoutName.split(".")[-2])
+            with open(stdoutName, "r") as logFile:
                 data = logFile.read()
+                # only write if there's something to write
                 if data:
-                    # only write if there's something to write.
-                    rankId = "\n{0} RANK {1:03d} STDERR {2}\n".format(
+                    rankId = "\n{0} RANK {1:03d} STDOUT {2}\n".format(
                         "-" * 10, rank, "-" * 60
                     )
-                    print(rankId, file=sys.stderr)
-                    print(data, file=sys.stderr)
+                    if rank == 0:
+                        print(rankId, file=sys.stdout)
+                        print(data, file=sys.stdout)
+                    else:
+                        workerLog.write(rankId)
+                        workerLog.write(data)
             try:
-                os.remove(stderrName)
+                os.remove(stdoutName)
             except OSError:
-                warning("Could not delete {0}".format(stderrName))
+                warning("Could not delete {0}".format(stdoutName))
+
+            # then print the stderr messages for that child process
+            stderrName = stdoutName[:-3] + "err"
+            if os.path.exists(stderrName):
+                with open(stderrName) as logFile:
+                    data = logFile.read()
+                    if data:
+                        # only write if there's something to write.
+                        rankId = "\n{0} RANK {1:03d} STDERR {2}\n".format(
+                            "-" * 10, rank, "-" * 60
+                        )
+                        print(rankId, file=sys.stderr)
+                        print(data, file=sys.stderr)
+                try:
+                    os.remove(stderrName)
+                except OSError:
+                    warning("Could not delete {0}".format(stderrName))
 
 
 # Here are all the module-level functions that should be used for most outputs.
@@ -492,10 +511,15 @@ class RunLogger(logging.Logger):
         )
 
     def _log(self, *args, **kwargs):
-        """wrapper around the standard library Logger._log() method
+        """
+        Wrapper around the standard library Logger._log() method
+
         The primary goal here is to allow us to support the deduplication of warnings.
-        NOTE: All of the *args and **kwargs logic here are mandatory, as the standard library implementation of this
-        method has been changing the number of kwargs between Python v3.4 and v3.9.
+
+        .. note:: All of the ``*args`` and ``**kwargs`` logic here are mandatory, as the
+            standard library implementation of this method has been changing the number of
+            kwargs between Python v3.4 and v3.9.
+
         """
         # we need 'extra' as an output keyword, even if empty
         if "extra" not in kwargs:
