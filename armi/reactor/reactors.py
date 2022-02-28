@@ -1689,6 +1689,10 @@ class Core(composites.Composite):
         a = self.parent.blueprints.constructAssem(
             cs or settings.getMasterCs(), name=assemType
         )
+        # upper limit of 1 wt% U-235 for "non-enriched" uranium. this is intentionally
+        # slightly higher than actual NU (0.0072) to ensure we don't accidentally classify
+        # NU as enriched.
+        _enrichmentThreshold = 0.01
 
         # check to see if a default bol assembly is being used or we are adding more information
         if enrichList:
@@ -1706,6 +1710,10 @@ class Core(composites.Composite):
             for b, enrich in zip(a, enrichList):
                 if enrich == 0.0:
                     # don't change blocks when enrich specified as 0
+                    continue
+                if b.getUraniumMassEnrich() < _enrichmentThreshold:
+                    # might have natrual or depleted uranium axial blanket; don't want to
+                    # adjust this enrichment
                     continue
                 if abs(b.getUraniumMassEnrich() - enrich) > 1e-10:
                     # only adjust block enrichment if it's different.
