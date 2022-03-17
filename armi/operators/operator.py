@@ -475,6 +475,28 @@ class Operator:  # pylint: disable=too-many-public-methods
         ]
         self._interactAll("EveryNode", activeInterfaces, cycle, tn)
 
+        from armi.utils import plotting
+        data = [sum(b.p.power for b in a)/1e6 for a in self.r.core]
+        labels = []
+        for dat, a in zip(data, self.r.core):
+            maxBu = max(b.p.percentBu for b in a)
+            totalFlux = sum(b.p.flux for b in a)/1e16
+            labels.append("{:.2f}\n{:.2f}\n{:.2f}".format(dat,maxBu, totalFlux))
+        plotting.plotFaceMap(
+            self.r.core,
+            title="{} Radial Core Map".format(self.cs.caseTitle),
+            fName="power,{},{}.{}".format(cycle, tn,self.cs["outputFileExtension"]),
+            data=data,
+            labels=labels,
+            axisEqual=True,
+            bare=True,
+            titleSize=10,
+            fontSize=10,
+            minScale=4,
+            maxScale=6,
+        )
+        plotting.close()
+
     def interactAllEOC(self, cycle, excludedInterfaceNames=None):
         """Interact end of cycle for all enabled interfaces."""
         excludedInterfaceNames = excludedInterfaceNames or ()
