@@ -281,7 +281,7 @@ def defineSettings() -> List[setting.Setting]:
             description="Number of depletion substeps, n, in one cycle. Note: There "
             "will be n+1 time nodes and the burnup step time will be computed as cycle "
             "length/n when the simple cycles input format is used.",
-            schema=(vol.Any(int, None)),
+            schema=vol.Coerce(int),
         ),
         setting.Setting(
             CONF_BETA,
