@@ -248,7 +248,15 @@ def _getStepAndCycleLengths(cs):
             else [[]]
         )
 
-    return stepLengths, cycleLengths
+    if cs["runType"] == "Equilibrium":
+        # repeat many times for equilibrium
+        # in practice, an eq run should not be more than 20 cylces. It should definitely
+        # not be more than 100.
+        eqStepLengths = [ stepLengths[0] for i in range(cs["nCycles"]) ]
+        eqCycleLengths = [ cycleLengths[0] for i in range(cs["nCycles"]) ]
+        return eqStepLengths, eqCycleLengths
+    else:
+        return stepLengths, cycleLengths
 
 
 def getStepLengths(cs):
