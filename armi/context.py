@@ -147,6 +147,10 @@ if MPI_NODENAMES.index(MPI_NODENAME) == MPI_RANK:
 if MPI_COMM is not None:
     MPI_COMM.barrier()  # make sure app data exists before workers proceed.
 
+# MPI_DISTRIBUTABLE is a flag to indicate whether parallel MPI processes are currently progress.
+# It is initialized by checking MPI_SIZE > 1, but at different points during execution
+# it can be manually toggled between True/False to help manage running specific sections
+# of code in serial.
 MPI_DISTRIBUTABLE = MPI_SIZE > 1
 
 _FAST_PATH = os.path.join(os.getcwd())
@@ -287,6 +291,7 @@ def cleanAllArmiTempDirs(olderThanDays: int) -> None:
 def waitAll() -> None:
     """
     If there are parallel processes running, wait for all to catch up to the checkpoint.
+
     """
     if MPI_SIZE > 1 and MPI_DISTRIBUTABLE:
         MPI_COMM.barrier()
