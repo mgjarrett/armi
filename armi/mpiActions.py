@@ -301,7 +301,7 @@ def runActions(o, r, cs, actions, numPerNode=None, serial=False):
     """
     if not context.MPI_DISTRIBUTABLE or serial:
         runLog.debug(
-            "MPI_RANK = {}, MPI_SIZE = {},  MPI_DISTRIBUTABLE = {}, serial = {}".format(
+            "MPI_RANK = {}, MPI_SIZE = {}, MPI_DISTRIBUTABLE = {}, serial = {}".format(
                 context.MPI_RANK, context.MPI_SIZE, context.MPI_DISTRIBUTABLE, serial
             )
         )
@@ -405,7 +405,7 @@ class DistributionAction(MpiAction):
 
         Notes
         =====
-        Two things about this method make it non-recursiv
+        Two things about this method make it non-recursive
         """
         canDistribute = context.MPI_DISTRIBUTABLE
         mpiComm = context.MPI_COMM
@@ -429,11 +429,11 @@ class DistributionAction(MpiAction):
         try:
             action = mpiComm.scatter(self._actions, root=0)
             # create a new communicator that only has these specific dudes running
-            context.MPI_DISTRIBUTABLE = False
             hasAction = action is not None
             context.MPI_COMM = mpiComm.Split(int(hasAction))
             context.MPI_RANK = context.MPI_COMM.Get_rank()
             context.MPI_SIZE = context.MPI_COMM.Get_size()
+            context.MPI_DISTRIBUTABLE = context.MPI_RANK == 0 and context.MPI_SIZE > 1
             context.MPI_NODENAMES = context.MPI_COMM.allgather(context.MPI_NODENAME)
             if hasAction:
                 actionResult = action.invoke(self.o, self.r, self.cs)
