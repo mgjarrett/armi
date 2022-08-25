@@ -42,8 +42,6 @@ class BlockConverter:
         ----------
         sourceBlock : :py:class:`armi.reactor.blocks.Block`
             An ARMI Block object to convert.
-        quite : boolean, optional
-            If True, less information is output in the runLog.
         """
         self._sourceBlock = sourceBlock
         self.convertedBlock = None  # the new block that is created.
@@ -221,8 +219,6 @@ class ComponentMerger(BlockConverter):
             The name of the solute component in _sourceBlock
         solventName : str
             The name of the solvent component in _sourceBlock
-        quite : boolean, optional
-            If True, less information is output in the runLog.
         """
         BlockConverter.__init__(self, sourceBlock)
         self.soluteName = soluteName
@@ -261,8 +257,6 @@ class MultipleComponentMerger(BlockConverter):
         minID : float
             The minimum hot temperature diameter allowed for the solvent.
             This is useful for forcing components to not overlap.
-        quite : boolean, optional
-            If True, less information is output in the runLog.
         """
         BlockConverter.__init__(self, sourceBlock)
         self.soluteNames = soluteNames
