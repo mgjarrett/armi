@@ -207,8 +207,18 @@ class UniformMeshGeometryConverter(GeometryConverter):
 
         return newReactor
 
-    def applyStateToOriginal(self):
-        """Apply the state of the converted reactor back to the original reactor, mapping number densities and block parameters."""
+    def applyStateToOriginal(self, applyParams=True):
+        """
+        Apply the state of the converted reactor back to the original reactor, mapping number densities and block parameters.
+
+        Parameters
+        ----------
+        applyParams : bool , optional
+            Whether to apply the parameters back to the original core. If false, the original state is restored without
+            mapping parameters back. This might be used when a global flux calculation is used to calculate k-effective,
+            but the flux solution from that calculation is not of interest to the user.
+
+        """
         runLog.extra(
             f"Applying uniform neutronics results from {self.convReactor} to {self._sourceReactor}"
         )
@@ -226,12 +236,13 @@ class UniformMeshGeometryConverter(GeometryConverter):
                         storedAssem.getName()
                         == assem.getName() + self._TEMP_STORAGE_NAME_SUFFIX
                     ):
-                        self.setAssemblyStateFromOverlaps(
-                            assem,
-                            storedAssem,
-                            self.blockParamNames,
-                            mapNumberDensities=False,
-                        )
+                        if applyParams:
+                            self.setAssemblyStateFromOverlaps(
+                                assem,
+                                storedAssem,
+                                self.blockParamNames,
+                                mapNumberDensities=False,
+                            )
 
                         # Remove the stored assembly from the temporary storage list
                         # and replace the current assembly with it.
