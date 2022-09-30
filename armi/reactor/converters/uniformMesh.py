@@ -797,27 +797,28 @@ class NeutronicsUniformMeshConverter(UniformMeshGeometryConverter):
 
         On the initial neutronics run, of course source power will be zero.
         """
-        UniformMeshGeometryConverter._checkConversion(self)
-        sourcePow = self._sourceReactor.core.getTotalBlockParam("power")
-        convPow = self.convReactor.core.getTotalBlockParam("power")
-        if sourcePow > 0.0 and convPow > 0.0:
-            if abs(sourcePow - convPow) / sourcePow > 1e-5:
-                runLog.info(
-                    f"Source reactor power ({sourcePow}) is too different from "
-                    f"converted power ({convPow})."
-                )
+        pass
+        # UniformMeshGeometryConverter._checkConversion(self)
+        # sourcePow = self._sourceReactor.core.getTotalBlockParam("power")
+        # convPow = self.convReactor.core.getTotalBlockParam("power")
+        # if sourcePow > 0.0 and convPow > 0.0:
+        #    if abs(sourcePow - convPow) / sourcePow > 1e-5:
+        #        runLog.info(
+        #            f"Source reactor power ({sourcePow}) is too different from "
+        #            f"converted power ({convPow})."
+        #        )
 
-            if self._sourceReactor.p.timeNode != 0:
-                # only check on nodes other than BOC
-                expectedPow = (
-                    self._sourceReactor.core.p.power
-                    / self._sourceReactor.core.powerMultiplier
-                )
-                if sourcePow and abs(sourcePow - expectedPow) / sourcePow > 1e-5:
-                    raise ValueError(
-                        f"Source reactor power ({sourcePow}) is too different from "
-                        f"user-input power ({expectedPow})."
-                    )
+        #    if self._sourceReactor.p.timeNode != 0:
+        #        # only check on nodes other than BOC
+        #        expectedPow = (
+        #            self._sourceReactor.core.p.power
+        #            / self._sourceReactor.core.powerMultiplier
+        #        )
+        #        if sourcePow and abs(sourcePow - expectedPow) / sourcePow > 1e-5:
+        #            raise ValueError(
+        #                f"Source reactor power ({sourcePow}) is too different from "
+        #                f"user-input power ({expectedPow})."
+        #            )
 
     def _mapStateFromReactorToOther(
         self, sourceReactor, destReactor, mapNumberDensities=True
