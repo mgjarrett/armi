@@ -463,7 +463,7 @@ class GlobalFluxExecuter(executers.DefaultExecuter):
 
         if meshConverter:
             if self.options.applyResultsToReactor or self.options.hasNonUniformAssems:
-                meshConverter.applyStateToOriginal()
+                meshConverter.applyStateToOriginal(self.options.applyResultsToReactor)
             self.r = meshConverter._sourceReactor  # pylint: disable=protected-access;
 
             # Resets the stored attributes on the converter to
