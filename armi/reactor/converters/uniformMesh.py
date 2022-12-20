@@ -75,7 +75,10 @@ from armi.reactor.reactors import Reactor
 
 def converterFactory(globalFluxOptions):
     if globalFluxOptions.photons:
-        return GammaUniformMeshConverter(globalFluxOptions.cs)
+        return GammaUniformMeshConverter(
+            globalFluxOptions.cs,
+            calcReactionRates=globalFluxOptions.calcReactionRatesOnMeshConversion,
+            )
     else:
         return NeutronicsUniformMeshConverter(
             globalFluxOptions.cs,
@@ -941,6 +944,21 @@ class GammaUniformMeshConverter(UniformMeshGeometryConverter):
             parameters.Category.gamma,
         ],
     }
+
+    def __init__(self, cs=None, calcReactionRates=True):
+        """
+        Parameters
+        ----------
+        cs : obj, optional
+            Case settings object.
+
+        calcReactionRates : bool, optional
+            Set to True by default, but if set to False the reaction
+            rate calculation after the neutron flux is remapped will
+            not be calculated.
+        """
+        UniformMeshGeometryConverter.__init__(self, cs)
+        self.calcReactionRates = calcReactionRates
 
     def _setParamsToUpdate(self, direction):
         """
