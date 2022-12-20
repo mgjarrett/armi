@@ -322,6 +322,7 @@ class UniformMeshGeometryConverter(GeometryConverter):
         blockParamNames=None,
         blockParamMapper=None,
         mapNumberDensities=True,
+        calcReactionRates=False,
     ):
         """
         Build new assembly based on a source assembly but apply the uniform mesh.
@@ -435,7 +436,7 @@ class UniformMeshGeometryConverter(GeometryConverter):
         newAssem.calculateZCoords()
 
         UniformMeshGeometryConverter.setAssemblyStateFromOverlaps(
-            sourceAssem, newAssem, blockParamNames, blockParamMapper, mapNumberDensities
+            sourceAssem, newAssem, blockParamNames, blockParamMapper, mapNumberDensities, calcReactionRates
         )
         return newAssem
 
@@ -723,6 +724,7 @@ class UniformMeshGeometryConverter(GeometryConverter):
                 self._uniformMesh,
                 self.blockParamNames,
                 self.bpm,
+                calcReactionRates=self.calcReactionRates,
             )
             src = sourceAssem.spatialLocator
             newLoc = self.convReactor.core.spatialGrid[src.i, src.j, 0]
