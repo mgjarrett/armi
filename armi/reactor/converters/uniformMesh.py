@@ -75,10 +75,7 @@ from armi.reactor.reactors import Reactor
 
 def converterFactory(globalFluxOptions):
     if globalFluxOptions.photons:
-        return GammaUniformMeshConverter(
-            globalFluxOptions.cs,
-            calcReactionRates=globalFluxOptions.calcReactionRatesOnMeshConversion,
-        )
+        return GammaUniformMeshConverter(globalFluxOptions.cs)
     else:
         return NeutronicsUniformMeshConverter(
             globalFluxOptions.cs,
@@ -324,7 +321,6 @@ class UniformMeshGeometryConverter(GeometryConverter):
         blockParamNames=None,
         blockParamMapper=None,
         mapNumberDensities=True,
-        calcReactionRates=False,
     ):
         """
         Build new assembly based on a source assembly but apply the uniform mesh.
@@ -443,7 +439,6 @@ class UniformMeshGeometryConverter(GeometryConverter):
             blockParamNames,
             blockParamMapper,
             mapNumberDensities,
-            calcReactionRates,
         )
         return newAssem
 
@@ -574,8 +569,8 @@ class UniformMeshGeometryConverter(GeometryConverter):
                 if blockParamMapper is None:
                     runLog.warning(
                         f"Reaction rates requested for {destinationAssembly}, but no BlockParamMapper was "
-                        "provided to setAssemblyStateFromOverlaps(). Reaction rate calculation will likely fail "
-                        "without parameters being mapped in."
+                        "provided to setAssemblyStateFromOverlaps(). Reaction rates calculated will likely "
+                        "reflect the intended result without new parameter values being mapped in."
                     )
                 core = sourceAssembly.getAncestor(lambda c: isinstance(c, Core))
                 if core is not None:
@@ -742,7 +737,6 @@ class UniformMeshGeometryConverter(GeometryConverter):
                 self._uniformMesh,
                 self.blockParamNames,
                 self.bpm,
-                calcReactionRates=self.calcReactionRates,
             )
             src = sourceAssem.spatialLocator
             newLoc = self.convReactor.core.spatialGrid[src.i, src.j, 0]
@@ -964,21 +958,6 @@ class GammaUniformMeshConverter(UniformMeshGeometryConverter):
             parameters.Category.gamma,
         ],
     }
-
-    def __init__(self, cs=None, calcReactionRates=True):
-        """
-        Parameters
-        ----------
-        cs : obj, optional
-            Case settings object.
-
-        calcReactionRates : bool, optional
-            Set to True by default, but if set to False the reaction
-            rate calculation after the neutron flux is remapped will
-            not be calculated.
-        """
-        UniformMeshGeometryConverter.__init__(self, cs)
-        self.calcReactionRates = calcReactionRates
 
     def _setParamsToUpdate(self, direction):
         """
