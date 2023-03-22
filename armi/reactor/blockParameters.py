@@ -156,9 +156,8 @@ def getBlockParameterDefinitions():
             "percentBuMin",
             units="%FIMA",
             description="Minimum percentage of the initial heavy metal atoms that have been fissioned",
-            location=ParamLocation.MIN,
+            location=ParamLocation.MAX,
         )
-
         pb.defParam(
             "residence",
             units="EFP days",
