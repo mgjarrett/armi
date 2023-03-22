@@ -98,7 +98,7 @@ class UniformMeshGeometryConverter(GeometryConverter):
         - Mapping number densities and block parameters between one assembly to another. See: `<UniformMeshGeometryConverter.setAssemblyStateFromOverlaps>`
 
     This class is meant to be extended for specific physics calculations that require a uniform mesh.
-    The child types of this class should define custom `reactorParamsToMap` and `blockParamsToMap` attributes, and the `_setParamsToUpdate` method
+    The child types of this class should define custom `reactorParamMappingCategories` and `blockParamMappingCategories` attributes, and the `_setParamsToUpdate` method
     to specify the precise parameters that need to be mapped in each direction between the non-uniform and uniform mesh assemblies. The definitions should avoid mapping
     block parameters in both directions because the mapping process will cause numerical diffusion. The behavior of `setAssemblyStateFromOverlaps` is dependent on the
     direction in which the mapping is being applied to prevent the numerical diffusion problem.
