@@ -163,7 +163,8 @@ class FissionProductModel(interfaces.Interface):
 
     def setAllComponentFissionProducts(self):
         """
-        Initialize all nuclides for each ``DEPLETABLE`` component in the core, or all blocks if mesh conversion.
+        Initialize all nuclides for each ``DEPLETABLE`` component in the core, or all blocks if
+        detailed axial expansion is enabled.
 
         Notes
         -----
@@ -174,7 +175,7 @@ class FissionProductModel(interfaces.Interface):
         When detailedAxialExpansion is also enabled, all regions will have fission/activation
         products added to avoid missing cross sections during mesh conversion (since converted
         blocks only have one xsID but may have isotopes from multiple blocks with different IDs.)
-        Setting density to zero her enables small number densities is XS generation.
+        Setting density to zero here enables small number densities is XS generation.
 
         When explicit fission products are enabled and the user has not already included
         all fission products in the blueprints (in ``nuclideFlags``), the ``fpModelLibrary`` setting is used
@@ -194,8 +195,8 @@ class FissionProductModel(interfaces.Interface):
             b.setLumpedFissionProducts(None)
 
             # If detailed axial expansion is active, mapping between blocks occurs on uniform mesh
-            # and this can cause blocks to have isotopes that they dont have cross sections for/
-            # Fix this by adding all isotopes to all blocks so they are present it lattice physics.
+            # and this can cause blocks to have isotopes that they dont have cross sections for
+            # Fix this by adding all isotopes to all blocks so they are present in lattice physics.
             allBlocksNeedAllNucs = self.cs[CONF_DETAILED_AXIAL_EXPANSION]
 
             compsToAddIso = b.getComponents(Flags.DEPLETABLE)
@@ -207,9 +208,7 @@ class FissionProductModel(interfaces.Interface):
                     compsToAddIso = [solidsOrderedBySize[0]]
                 else:
                     # no solids, so just add to smallest component
-                    compsToAddIso = [
-                        sorted(c for c in b if c.containsSolidMaterial())[0]
-                    ]
+                    compsToAddIso = [sorted(c for c in b)[0]]
             for c in compsToAddIso:
                 updatedNDens = c.getNumberDensities()
                 for nuc in self.r.blueprints.allNuclidesInProblem:
