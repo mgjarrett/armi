@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Tests for xsLibraries.IsotxsLibrary"""
+"""Tests for xsLibraries.IsotxsLibrary."""
 # pylint: disable=missing-function-docstring,missing-class-docstring,abstract-method,protected-access,unused-variable
 import copy
 import filecmp
@@ -55,7 +55,7 @@ UFG_FLUX_EDIT = os.path.join(FIXTURE_DIR, "mc2v3-AA.flux_ufg")
 
 
 class TempFileMixin:
-    """really a test case"""
+    """really a test case."""
 
     def setUp(self):
         self.td = TemporaryDirectoryChanger()
@@ -277,7 +277,7 @@ class Test_GetISOTXSFilesInWorkingDirectory(unittest.TestCase):
 
     def assert_contains_only(self, container, shouldBeThere, shouldNotBeThere):
         """
-        Utility method for saying what things contain
+        Utility method for saying what things contain.
 
         This could just check the contents and the length, but the error produced when you pass shouldNotBeThere
         is much nicer.
@@ -287,7 +287,7 @@ class Test_GetISOTXSFilesInWorkingDirectory(unittest.TestCase):
         self.assertEqual(set(), container & set(shouldNotBeThere))
 
 
-# LOOK OUT, THIS GETS DELETED LATER ON SO IT DOESN'T RUN... IT IS AN ABSTRACT CLASS!!
+# NOTE: This is just a base class, so it isn't run directly.
 class TestXSlibraryMerging(unittest.TestCase, TempFileMixin):
     """A shared class that defines tests that should be true for all IsotxsLibrary merging."""
 

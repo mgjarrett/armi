@@ -95,7 +95,7 @@ class XSNuclide(nuclideBases.NuclideWrapper):
         self._base = nuclideBase
 
     def getMicroXS(self, interaction, group):
-        r"""Returns the microscopic xs as the ISOTXS value if it exists or a 0 since it doesn't"""
+        r"""Returns the microscopic xs as the ISOTXS value if it exists or a 0 since it doesn't."""
         if interaction in self.micros.__dict__:
             try:
                 return self.micros[interaction][group]
@@ -229,7 +229,7 @@ def _mergeAttributes(this, other, attrName):
 
 
 def plotScatterMatrix(scatterMatrix, scatterTypeLabel="", fName=None):
-    r"""plots a matrix to show scattering."""
+    """Plots a matrix to show scattering."""
     from matplotlib import pyplot
 
     pyplot.imshow(scatterMatrix.todense(), interpolation="nearest")
@@ -242,6 +242,8 @@ def plotScatterMatrix(scatterMatrix, scatterTypeLabel="", fName=None):
         pyplot.savefig(fName)
     else:
         pyplot.show()
+
+    pyplot.close()
 
 
 def plotCompareScatterMatrix(scatterMatrix1, scatterMatrix2, fName=None):
@@ -260,3 +262,5 @@ def plotCompareScatterMatrix(scatterMatrix1, scatterMatrix2, fName=None):
         pyplot.savefig(fName)
     else:
         pyplot.show()
+
+    pyplot.close()
