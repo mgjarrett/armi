@@ -1370,25 +1370,72 @@ class ParamMapper:
 
 def setNumberDensitiesFromOverlaps(block, overlappingBlockInfo):
     r"""
-    Set number densities on a block based on overlapping blocks.
+    This sets the number densities within the current block given overlapping blocks.
 
-    A conservation of number of atoms technique is used to map the non-uniform number densities onto the uniform
-    neutronics mesh. When the number density of a height :math:`H` neutronics mesh block :math:`N^{\prime}` is
-    being computed from one or more blocks in the ARMI mesh with number densities :math:`N_i` and
-    heights :math:`h_i`, the following formula is used:
-
-    .. math::
-
-        N^{\prime} =  \sum_i N_i \frac{h_i}{H}
+    This differs from the base implementation as it works through the component-level
+    to assign number densities rather than on the block level.
     """
-    totalDensities = collections.defaultdict(float)
+    # Here we are going to collect the component number densities from each component
+    # from all the overlapping blocks to be added together.
+    ndensByComponentType = collections.defaultdict(dict)
     block.clearNumberDensities()
-    blockHeightInCm = block.getHeight()
+
+    componentTypesInMainBlock = [c.getType() for c in block.getComponents()]
+    defaultComponentTypes = (
+        Flags.DUCT,
+        Flags.GRID_PLATE,
+        Flags.HANDLING_SOCKET,
+        Flags.INLET_NOZZLE,
+        Flags.COOLANT,
+    )
+    for compType in defaultComponentTypes:
+        try:
+            defaultComponent = block.getComponents(compType)[0]
+            break
+        except IndexError:
+            pass
+    else:
+        raise ValueError(f"No default component in {block}")
+
+    for c in block.getComponents():
+        ndensByComponentType[c.getType()] = collections.defaultdict(float)
+
+    # Iterate over each overlapping block and calculate the scaled number of atoms.
     for overlappingBlock, overlappingHeightInCm in overlappingBlockInfo:
-        heightScaling = overlappingHeightInCm / blockHeightInCm
-        for nucName, numberDensity in overlappingBlock.getNumberDensities().items():
-            totalDensities[nucName] += numberDensity * heightScaling
-    block.setNumberDensities(dict(totalDensities))
+        heightScaling = overlappingHeightInCm / block.getHeight()
+        for c in overlappingBlock.getComponents():
+            compType = c.getType()
+            if compType in componentTypesInMainBlock:
+                mainCompType = compType
+            elif "coolant" in compType.lower():
+                mainCompType = next(
+                    x
+                    for x in [
+                        "guideTubeCoolant",
+                        "interDuctCoolant",
+                        "intercoolant",
+                        "coolant",
+                    ]
+                    if x in ndensByComponentType
+                )
+            else:
+                # If there is a component name/type that exists in the overlapping blocks that
+                # doesn't match a type within the main block we are going to these to the default component of the main block.
+                mainCompType = defaultComponent.getType()
+
+            scalingFactor = c.getArea() * heightScaling
+            for nuc, ndens in c.getNumberDensities().items():
+                ndensByComponentType[mainCompType][nuc] += ndens * scalingFactor
+
+    # Let's assign the new number densities.
+    for c in block.getComponents():
+        compArea = c.getArea()
+        ndens = {
+            nuc: atoms / compArea
+            for nuc, atoms in ndensByComponentType[c.getType()].items()
+        }
+        c.setNumberDensities(ndens)
+
     # Set the volume of each component in the block to `None` so that the
     # volume of each component is recomputed.
     for c in block:
