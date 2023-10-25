@@ -8,6 +8,7 @@ Release Date: TBD
 
 What's new in ARMI
 ------------------
+#. Attempt to set representative block number densities by component if possible. (`PR#1412 <https://github.com/terrapower/armi/pull/1412>`_)
 #. TBD
 
 Bug fixes
@@ -276,4 +277,3 @@ Bug fixes
 #. Fixed order of operations issue in rotatePins
 #. Fixed incorrect multiplicity for non-grid block components
 #. Many additional bugfixes and cleanups (see PR list)
-
