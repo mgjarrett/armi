@@ -9,6 +9,7 @@ Release Date: TBD
 What's new in ARMI
 ------------------
 #. Attempt to set representative block number densities by component if possible. (`PR#1412 <https://github.com/terrapower/armi/pull/1412>`_)
+# Add nucTempHelper to CylindricalComponentsAverageBlockCollection (`PR#1363 <https://github.com/terrapower/armi/pull/1412>`_)
 #. TBD
 
 Bug fixes
