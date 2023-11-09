@@ -187,7 +187,7 @@ class UniformMeshGenerator:
             Flags.FUEL
         )
         materialBottoms, materialTops = self._getFilteredMeshTopAndBottom(
-            Flags.CONTROL, filteredBottomFuel, filteredTopFuel
+            Flags.CONTROL, filteredBottomFuel, filteredTopFuel, warn=True
         )
 
         # combine the bottoms and tops into one list with bottom preference
@@ -292,7 +292,7 @@ class UniformMeshGenerator:
                 return sorted(meshList)
             meshList.pop(removeIndex)
 
-    def _getFilteredMeshTopAndBottom(self, flags, bottoms=None, tops=None):
+    def _getFilteredMeshTopAndBottom(self, flags, bottoms=None, tops=None, warn=False):
         """
         Get the bottom and top boundaries of fuel assemblies and filter them based on the ``minimumMeshSize``.
 
@@ -305,6 +305,8 @@ class UniformMeshGenerator:
             Mesh "anchors" for material bottom boundaries
         tops : list[float], optional
             Mesh "anchors" for material top boundaries
+        warn : bool
+            Whether or not to throw a warning message when mesh edges are removed in the filtering process.
 
         Returns
         -------
@@ -330,7 +332,11 @@ class UniformMeshGenerator:
                 matBoundaries.add(meshGetter(a, flags))
             anchors = meshList if meshList is not None else [extreme(matBoundaries)]
             filteredBoundaries[preference] = self._filterMesh(
-                matBoundaries, self.minimumMeshSize, anchors, preference=preference
+                matBoundaries,
+                self.minimumMeshSize,
+                anchors,
+                preference=preference,
+                warn=warn,
             )
 
         return filteredBoundaries["bottom"], filteredBoundaries["top"]
