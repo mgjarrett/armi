@@ -877,7 +877,12 @@ class UniformMeshGeometryConverter(GeometryConverter):
                     ):
                         if sourceBlockVal is None:
                             continue
-                        if paramMapper.isPeak[paramName]:
+                        if (
+                            paramMapper.isTop[paramName]
+                            or paramMapper.isBottom[paramName]
+                        ):
+                            continue
+                        elif paramMapper.isPeak[paramName]:
                             updatedDestVals[paramName] = max(
                                 sourceBlockVal, updatedDestVals[paramName]
                             )
@@ -890,6 +895,22 @@ class UniformMeshGeometryConverter(GeometryConverter):
                             updatedDestVals[paramName] += (
                                 sourceBlockVal * integrationFactor
                             )
+
+                bottomBlockVals = paramMapper.paramGetter(
+                    sourceBlocksInfo[0][0],
+                    paramMapper.blockParamNames,
+                )
+                topBlockVals = paramMapper.paramGetter(
+                    sourceBlocksInfo[-1][0],
+                    paramMapper.blockParamNames,
+                )
+                for paramName, bottomBlockVal, topBlockVal in zip(
+                    paramMapper.blockParamNames, bottomBlockVals, topBlockVals
+                ):
+                    if paramMapper.isTop[paramName]:
+                        updatedDestVals[paramName] = topBlockVal
+                    elif paramMapper.isBottom[paramName]:
+                        updatedDestVals[paramName] = bottomBlockVal
 
                 paramMapper.paramSetter(
                     destBlock, updatedDestVals.values(), updatedDestVals.keys()
@@ -1377,6 +1398,18 @@ class ParamMapper:
         # although this is rarely actually the case.
         self.isPeak = {
             paramName: b.p.paramDefs[paramName].atLocation(parameters.ParamLocation.MAX)
+            for paramName in blockParamNames
+        }
+
+        self.isTop = {
+            paramName: b.p.paramDefs[paramName].atLocation(parameters.ParamLocation.TOP)
+            for paramName in blockParamNames
+        }
+
+        self.isBottom = {
+            paramName: b.p.paramDefs[paramName].atLocation(
+                parameters.ParamLocation.BOTTOM
+            )
             for paramName in blockParamNames
         }
 
