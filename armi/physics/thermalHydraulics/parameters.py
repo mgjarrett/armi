@@ -61,7 +61,10 @@ def _getBlockParams():
         )
 
     with pDefs.createBuilder(
-        default=None, saveToDB=True, categories=["thermal hydraulics"]
+        default=None,
+        saveToDB=True,
+        categories=["thermal hydraulics"],
+        location=ParamLocation.MAX,
     ) as pb:
 
         pb.defParam(
@@ -134,18 +137,16 @@ def _getBlockParams():
             categories=["thInterface"],
         )
 
+    with pDefs.createBuilder(
+        default=0.0, categories=["thInterface"], saveToDB=True
+    ) as pb:
+
         pb.defParam(
             "THdilationPressure",
             units=units.PASCALS,
             description="Dilation pressure",
-            categories=["thInterface"],
-            default=0.0,
             location=ParamLocation.AVERAGE,
         )
-
-    with pDefs.createBuilder(
-        default=0.0, categories=["thInterface"], saveToDB=True
-    ) as pb:
 
         pb.defParam(
             "THTfuelCL",
