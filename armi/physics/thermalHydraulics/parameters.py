@@ -61,7 +61,10 @@ def _getBlockParams():
         )
 
     with pDefs.createBuilder(
-        default=None, saveToDB=True, categories=["thermal hydraulics"]
+        default=None,
+        saveToDB=True,
+        categories=["thermal hydraulics"],
+        location=ParamLocation.TOP,
     ) as pb:
 
         pb.defParam(
@@ -134,18 +137,16 @@ def _getBlockParams():
             categories=["thInterface"],
         )
 
+    with pDefs.createBuilder(
+        default=0.0, categories=["thInterface"], saveToDB=True
+    ) as pb:
+
         pb.defParam(
             "THdilationPressure",
             units=units.PASCALS,
             description="Dilation pressure",
-            categories=["thInterface"],
-            default=0.0,
             location=ParamLocation.AVERAGE,
         )
-
-    with pDefs.createBuilder(
-        default=0.0, categories=["thInterface"], saveToDB=True
-    ) as pb:
 
         pb.defParam(
             "THTfuelCL",
@@ -229,7 +230,7 @@ def _getBlockParams():
             "THdeltaPTotal",
             units=units.PASCALS,
             description="Total pressure difference in a block",
-            location=ParamLocation.AVERAGE,
+            location=ParamLocation.VOLUME_INTEGRATED,
         )
 
         pb.defParam(
@@ -264,7 +265,7 @@ def _getBlockParams():
             "THorificeZone",
             units=units.UNITLESS,
             description="A list of orificing zones corresponding to the assembly list",
-            location=ParamLocation.AVERAGE,
+            location=ParamLocation.MAX,
         )
 
     with pDefs.createBuilder(
@@ -292,7 +293,7 @@ def _getBlockParams():
             "THhotChannel",
             units=units.UNITLESS,
             description="Hot channel (highest coolant dT) identifier",
-            location=ParamLocation.AVERAGE,
+            location=ParamLocation.MAX,
         )
 
     return pDefs
