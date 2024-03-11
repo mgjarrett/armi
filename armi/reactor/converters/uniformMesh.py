@@ -1256,9 +1256,15 @@ class NeutronicsUniformMeshConverter(UniformMeshGeometryConverter):
         if direction == "out":
             excludedCategories.append(parameters.Category.cumulative)
             excludedCategories.append(parameters.Category.cumulativeOverCycle)
+            excludedLocations = [
+                parameters.ParamLocation.TOP,
+                parameters.ParamLocation.BOTTOM,
+            ]
         excludedParamNames = []
         for category in excludedCategories:
             excludedParamNames.extend(b.p.paramDefs.inCategory(category).names)
+        for loc in excludedLocations:
+            excludedParamNames.extend(b.p.paramDefs.atLocatino(loc).names)
         for category in self.blockParamMappingCategories[direction]:
             blockParamNames.extend(
                 [
@@ -1346,6 +1352,8 @@ class GammaUniformMeshConverter(UniformMeshGeometryConverter):
                 + b.p.paramDefs.inCategory(
                     parameters.Category.cumulativeOverCycle
                 ).names
+                + b.p.paramDefs.atLocation(parameters.ParamLocation.TOP).names
+                + b.p.paramDefs.atLocation(parameters.ParamLocation.BOTTOM).names
             )
         else:
             excludeList = b.p.paramDefs.inCategory(parameters.Category.gamma).names
