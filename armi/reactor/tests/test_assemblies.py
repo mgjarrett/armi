@@ -1151,6 +1151,10 @@ class AssemblyInReactor_TestCase(unittest.TestCase):
         ################################
         igniterFuel = self.r.core.childrenByLocator[grid[0, 0, 0]]
         # gridplate, fuel, fuel, fuel, plenum
+        for b in igniterFuel.getBlocks(Flags.FUEL):
+            fuelComp = b.getComponent(Flags.FUEL)
+            fuelComp.setNumberDensity("FE56", 1e-10)
+            fuelComp.setNumberDensity("NA23", 1e-10)
         b = igniterFuel[0]
         coolantNucs = b.getComponent(Flags.COOLANT).getNuclides()
         coolMass = 0
